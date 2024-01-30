@@ -23,7 +23,7 @@ public class ScreenMenu implements Screen {
         camera = spaceDS.camera;
         touch = spaceDS.touch;
 
-        img = new Texture("badlogic.jpg");
+        //img = new Texture("badlogic.jpg");
     }
 
     @Override
@@ -41,7 +41,7 @@ public class ScreenMenu implements Screen {
         ScreenUtils.clear(1, 0, 0, 1);
         batch.setProjectionMatrix(camera.combined);
         batch.begin();
-        batch.draw(img, 0, 0);
+        //batch.draw(img, 0, 0);
         batch.end();
     }
 

@@ -1,5 +1,7 @@
 package com.mygdx.spacedistshooter;
 
+import static com.mygdx.spacedistshooter.SpaceDistShooter.*;
+
 import com.badlogic.gdx.Screen;
 import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.badlogic.gdx.graphics.Texture;
@@ -14,7 +16,9 @@ public class ScreenGame implements Screen {
     OrthographicCamera camera;
     Vector3 touch;
 
-    Texture img;
+    Texture imgStars;
+
+    Stars[] stars = new Stars[2];
 
     public ScreenGame(SpaceDistShooter spaceDS) {
         this.spaceDS = spaceDS;
@@ -23,7 +27,10 @@ public class ScreenGame implements Screen {
         camera = spaceDS.camera;
         touch = spaceDS.touch;
 
-        img = new Texture("badlogic.jpg");
+        imgStars = new Texture("stars.png");
+
+        stars[0] = new Stars(0);
+        stars[1] = new Stars(SCR_HEIGHT);
     }
 
     @Override
@@ -36,12 +43,17 @@ public class ScreenGame implements Screen {
         // касания
 
         // события игры
+        for (Stars s: stars) {
+            s.move();
+        }
 
         // отрисовка
         ScreenUtils.clear(1, 0, 0, 1);
         batch.setProjectionMatrix(camera.combined);
         batch.begin();
-        batch.draw(img, 0, 0);
+        for (Stars s: stars) {
+            batch.draw(imgStars, s.x, s.y, s.width, s.height);
+        }
         batch.end();
     }
 
@@ -67,6 +79,6 @@ public class ScreenGame implements Screen {
 
     @Override
     public void dispose() {
-        img.dispose();
+        imgStars.dispose();
     }
 }
