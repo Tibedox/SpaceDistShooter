@@ -21,6 +21,14 @@ public class Ship extends SpaceObject{
     void move() {
         super.move();
         changePhase();
+        if (x < width/2){
+            vx = 0;
+            x = width/2;
+        }
+        if (x > SCR_WIDTH-width/2) {
+            vx = 0;
+            x = SCR_WIDTH-width/2;
+        }
     }
 
     void changePhase(){
@@ -30,4 +38,7 @@ public class Ship extends SpaceObject{
         }
     }
 
+    void touch(float touchX){
+        vx = (touchX - x) / 20;
+    }
 }

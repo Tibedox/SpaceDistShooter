@@ -35,6 +35,7 @@ public class ScreenMenu implements Screen {
     public void render(float delta) {
         // касания
 
+
         // события игры
 
         // отрисовка

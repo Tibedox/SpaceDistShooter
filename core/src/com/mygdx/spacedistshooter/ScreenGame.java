@@ -2,6 +2,8 @@ package com.mygdx.spacedistshooter;
 
 import static com.mygdx.spacedistshooter.SpaceDistShooter.*;
 
+import com.badlogic.gdx.Gdx;
+import com.badlogic.gdx.Input;
 import com.badlogic.gdx.Screen;
 import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.badlogic.gdx.graphics.Texture;
@@ -16,6 +18,8 @@ public class ScreenGame implements Screen {
     SpriteBatch batch;
     OrthographicCamera camera;
     Vector3 touch;
+    boolean isGyroscopeAvailable;
+    boolean isAccelerometerAvailable;
 
     Texture imgStars;
     Texture imgShipsAtlas;
@@ -26,6 +30,9 @@ public class ScreenGame implements Screen {
 
     public ScreenGame(SpaceDistShooter spaceDS) {
         this.spaceDS = spaceDS;
+
+        isGyroscopeAvailable = Gdx.input.isPeripheralAvailable(Input.Peripheral.Gyroscope);
+        isAccelerometerAvailable = Gdx.input.isPeripheralAvailable(Input.Peripheral.Accelerometer);
 
         batch = spaceDS.batch;
         camera = spaceDS.camera;
@@ -50,6 +57,17 @@ public class ScreenGame implements Screen {
     @Override
     public void render(float delta) {
         // касания
+        if (Gdx.input.isTouched()){
+            touch.set(Gdx.input.getX(), Gdx.input.getY(), 0);
+            camera.unproject(touch);
+            ship.touch(touch.x);
+        }
+        else if (isAccelerometerAvailable){
+            ship.vx = -Gdx.input.getAccelerometerX()*10;
+        }
+        else if (isGyroscopeAvailable) {
+            ship.vx = Gdx.input.getGyroscopeY()*10;
+        }
 
         // события игры
         for (Stars s: stars) {
