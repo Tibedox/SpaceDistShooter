@@ -10,7 +10,8 @@ import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.badlogic.gdx.math.Vector3;
-import com.badlogic.gdx.utils.ScreenUtils;
+import com.badlogic.gdx.utils.Array;
+import com.badlogic.gdx.utils.TimeUtils;
 
 public class ScreenGame implements Screen {
     SpaceDistShooter spaceDS;
@@ -23,10 +24,13 @@ public class ScreenGame implements Screen {
 
     Texture imgStars;
     Texture imgShipsAtlas;
-    TextureRegion[] imgShip = new TextureRegion[7];
+    TextureRegion[] imgShip = new TextureRegion[12];
+    TextureRegion[] imgEnemy = new TextureRegion[12];
 
     Stars[] stars = new Stars[2];
     Ship ship;
+    Array<Enemy> enemies = new Array<>();
+    long timeSpawnLastEnemy, timeSpawnEnemyInterval = 1500;
 
     public ScreenGame(SpaceDistShooter spaceDS) {
         this.spaceDS = spaceDS;
@@ -39,14 +43,23 @@ public class ScreenGame implements Screen {
         touch = spaceDS.touch;
 
         imgStars = new Texture("stars.png");
-        imgShipsAtlas = new Texture("ships_atlas.png");
+        imgShipsAtlas = new Texture("ships_atlas3.png");
         for (int i = 0; i < imgShip.length; i++) {
             imgShip[i] = new TextureRegion(imgShipsAtlas, i*400, 0, 400, 400);
+            if(i>6) {
+                imgShip[i] = new TextureRegion(imgShipsAtlas, (13-i) * 400, 0, 400, 400);
+            }
+        }
+        for (int i = 0; i < imgEnemy.length; i++) {
+            imgEnemy[i] = new TextureRegion(imgShipsAtlas, i*400, 1600, 400, 400);
+            if(i>6) {
+                imgEnemy[i] = new TextureRegion(imgShipsAtlas, (13-i)*400, 1600, 400, 400);
+            }
         }
 
         stars[0] = new Stars(0);
         stars[1] = new Stars(SCR_HEIGHT);
-        ship = new Ship();
+        ship = new Ship(imgShip.length);
     }
 
     @Override
@@ -74,12 +87,22 @@ public class ScreenGame implements Screen {
             s.move();
         }
         ship.move();
+        spawnEnemy();
+        for (Enemy e: enemies){
+            e.move();
+            /*if(e.outOfScreen()){
+                Gdx.app.exit();
+            }*/
+        }
 
         // отрисовка
         batch.setProjectionMatrix(camera.combined);
         batch.begin();
         for (Stars s: stars) {
             batch.draw(imgStars, s.x, s.y, s.width, s.height);
+        }
+        for (Enemy e: enemies) {
+            batch.draw(imgEnemy[e.phase], e.getX(), e.getY(), e.width, e.height);
         }
         batch.draw(imgShip[ship.phase], ship.getX(), ship.getY(), ship.width, ship.height);
         batch.end();
@@ -109,5 +132,12 @@ public class ScreenGame implements Screen {
     public void dispose() {
         imgStars.dispose();
         imgShipsAtlas.dispose();
+    }
+
+    void spawnEnemy(){
+        if(TimeUtils.millis() > timeSpawnLastEnemy+timeSpawnEnemyInterval){
+            timeSpawnLastEnemy = TimeUtils.millis();
+            enemies.add(new Enemy(imgEnemy.length));
+        }
     }
 }

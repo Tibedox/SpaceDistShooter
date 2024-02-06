@@ -15,6 +15,10 @@ public class Stars extends SpaceObject {
     @Override
     void move() {
         super.move();
+        outOfScreen();
+    }
+
+    void outOfScreen(){
         if (y < -SCR_HEIGHT) y = SCR_HEIGHT;
     }
 }

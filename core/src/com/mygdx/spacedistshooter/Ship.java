@@ -6,21 +6,23 @@ import static com.mygdx.spacedistshooter.SpaceDistShooter.SCR_WIDTH;
 import com.badlogic.gdx.utils.TimeUtils;
 
 public class Ship extends SpaceObject{
-    int phase, nPhases;
-    long timeLastPhase, timePhaseInterval = 40;
 
-    public Ship() {
+    public Ship(int nPhases) {
+        width = height = 200;
         x = SCR_WIDTH/2;
         y = SCR_HEIGHT/10;
-        width = 250;
-        height = 250;
-        nPhases = 7;
+        this.nPhases = nPhases;
+        timePhaseInterval = 40;
     }
 
     @Override
     void move() {
         super.move();
         changePhase();
+        outOfScreen();
+    }
+
+    void outOfScreen(){
         if (x < width/2){
             vx = 0;
             x = width/2;
@@ -28,13 +30,6 @@ public class Ship extends SpaceObject{
         if (x > SCR_WIDTH-width/2) {
             vx = 0;
             x = SCR_WIDTH-width/2;
-        }
-    }
-
-    void changePhase(){
-        if(TimeUtils.millis() > timeLastPhase+timePhaseInterval) {
-            if (++phase == nPhases) phase = 0;
-            timeLastPhase = TimeUtils.millis();
         }
     }
 
