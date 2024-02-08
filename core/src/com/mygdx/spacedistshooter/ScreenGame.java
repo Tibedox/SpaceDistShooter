@@ -23,17 +23,21 @@ public class ScreenGame implements Screen {
     boolean isAccelerometerAvailable;
 
     Texture imgStars;
+    Texture imgShot;
     Texture imgShipsAtlas;
+    Texture imgFragmentAtlas;
     TextureRegion[] imgShip = new TextureRegion[12];
     TextureRegion[] imgEnemy = new TextureRegion[12];
-    Texture imgShot;
+    TextureRegion[] imgFragment = new TextureRegion[2];
 
     Stars[] stars = new Stars[2];
     Ship ship;
     Array<Enemy> enemies = new Array<>();
     Array<Shot> shots = new Array<>();
+    Array<Fragment> fragments = new Array<>();
     long timeSpawnLastEnemy, timeSpawnEnemyInterval = 1500;
     long timeSpawnLastShot, timeSpawnShotInterval = 800;
+    int nFragments = 50;
 
     public ScreenGame(SpaceDistShooter spaceDS) {
         this.spaceDS = spaceDS;
@@ -49,6 +53,7 @@ public class ScreenGame implements Screen {
         imgStars = new Texture("stars.png");
         imgShipsAtlas = new Texture("ships_atlas3.png");
         imgShot = new Texture("shoot_blaster_red.png");
+        imgFragmentAtlas = new Texture("ships_fragment_atlas.png");
         for (int i = 0; i < imgShip.length; i++) {
             imgShip[i] = new TextureRegion(imgShipsAtlas, i*400, 0, 400, 400);
             if(i>6) {
@@ -61,6 +66,8 @@ public class ScreenGame implements Screen {
                 imgEnemy[i] = new TextureRegion(imgShipsAtlas, (13-i)*400, 1600, 400, 400);
             }
         }
+        imgFragment[0] = new TextureRegion(imgFragmentAtlas, 0, 0, 100, 100);
+        imgFragment[1] = new TextureRegion(imgFragmentAtlas, 500, 0, 100, 100);
 
         stars[0] = new Stars(0);
         stars[1] = new Stars(SCR_HEIGHT);
@@ -108,11 +115,15 @@ public class ScreenGame implements Screen {
             }
             for (int j = 0; j < enemies.size; j++) {
                 if(shots.get(i).hitEnemy(enemies.get(j))){
+                    spawnFragments(enemies.get(j).x, enemies.get(j).y, enemies.get(j).width, enemies.get(j).height, 1);
                     shots.removeIndex(i);
                     enemies.removeIndex(j);
                     break;
                 }
             }
+        }
+        for(Fragment f: fragments){
+            f.move();
         }
 
         // отрисовка
@@ -120,6 +131,9 @@ public class ScreenGame implements Screen {
         batch.begin();
         for (Stars s: stars) {
             batch.draw(imgStars, s.x, s.y, s.width, s.height);
+        }
+        for (Fragment f: fragments) {
+            batch.draw(imgFragment[f.type], f.getX(), f.getY(), f.width/2, f.height/2, f.width, f.height, 1, 1, f.angle);
         }
         for (Enemy e: enemies) {
             batch.draw(imgEnemy[e.phase], e.getX(), e.getY(), e.width, e.height);
@@ -169,6 +183,12 @@ public class ScreenGame implements Screen {
         if(TimeUtils.millis() > timeSpawnLastShot+timeSpawnShotInterval){
             timeSpawnLastShot = TimeUtils.millis();
             shots.add(new Shot(ship.x, ship.y));
+        }
+    }
+
+    void spawnFragments(float x, float y, float width, float height, int type){
+        for (int i = 0; i < nFragments; i++) {
+            fragments.add(new Fragment(x, y, width, height, type));
         }
     }
 }
