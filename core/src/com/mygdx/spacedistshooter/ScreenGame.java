@@ -26,15 +26,19 @@ public class ScreenGame implements Screen {
     Texture imgShipsAtlas;
     TextureRegion[] imgShip = new TextureRegion[12];
     TextureRegion[] imgEnemy = new TextureRegion[12];
+    Texture imgShot;
 
     Stars[] stars = new Stars[2];
     Ship ship;
     Array<Enemy> enemies = new Array<>();
+    Array<Shot> shots = new Array<>();
     long timeSpawnLastEnemy, timeSpawnEnemyInterval = 1500;
+    long timeSpawnLastShot, timeSpawnShotInterval = 800;
 
     public ScreenGame(SpaceDistShooter spaceDS) {
         this.spaceDS = spaceDS;
 
+        // проверяем, включены ли датчики гироскопа и акселерометра
         isGyroscopeAvailable = Gdx.input.isPeripheralAvailable(Input.Peripheral.Gyroscope);
         isAccelerometerAvailable = Gdx.input.isPeripheralAvailable(Input.Peripheral.Accelerometer);
 
@@ -44,6 +48,7 @@ public class ScreenGame implements Screen {
 
         imgStars = new Texture("stars.png");
         imgShipsAtlas = new Texture("ships_atlas3.png");
+        imgShot = new Texture("shoot_blaster_red.png");
         for (int i = 0; i < imgShip.length; i++) {
             imgShip[i] = new TextureRegion(imgShipsAtlas, i*400, 0, 400, 400);
             if(i>6) {
@@ -94,6 +99,10 @@ public class ScreenGame implements Screen {
                 Gdx.app.exit();
             }*/
         }
+        spawnShot();
+        for (Shot s: shots){
+            s.move();
+        }
 
         // отрисовка
         batch.setProjectionMatrix(camera.combined);
@@ -103,6 +112,9 @@ public class ScreenGame implements Screen {
         }
         for (Enemy e: enemies) {
             batch.draw(imgEnemy[e.phase], e.getX(), e.getY(), e.width, e.height);
+        }
+        for (Shot s: shots) {
+            batch.draw(imgShot, s.getX(), s.getY(), s.width, s.height);
         }
         batch.draw(imgShip[ship.phase], ship.getX(), ship.getY(), ship.width, ship.height);
         batch.end();
@@ -132,12 +144,20 @@ public class ScreenGame implements Screen {
     public void dispose() {
         imgStars.dispose();
         imgShipsAtlas.dispose();
+        imgShot.dispose();
     }
 
     void spawnEnemy(){
         if(TimeUtils.millis() > timeSpawnLastEnemy+timeSpawnEnemyInterval){
             timeSpawnLastEnemy = TimeUtils.millis();
             enemies.add(new Enemy(imgEnemy.length));
+        }
+    }
+
+    void spawnShot(){
+        if(TimeUtils.millis() > timeSpawnLastShot+timeSpawnShotInterval){
+            timeSpawnLastShot = TimeUtils.millis();
+            shots.add(new Shot(ship));
         }
     }
 }
