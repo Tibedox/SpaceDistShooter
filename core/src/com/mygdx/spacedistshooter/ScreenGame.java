@@ -93,15 +93,26 @@ public class ScreenGame implements Screen {
         }
         ship.move();
         spawnEnemy();
-        for (Enemy e: enemies){
-            e.move();
-            /*if(e.outOfScreen()){
-                Gdx.app.exit();
-            }*/
+        for (int i=0; i<enemies.size; i++){
+            enemies.get(i).move();
+            if(enemies.get(i).outOfScreen()){
+                enemies.removeIndex(i);
+                //Gdx.app.exit();
+            }
         }
         spawnShot();
-        for (Shot s: shots){
-            s.move();
+        for (int i=0; i<shots.size; i++){
+            shots.get(i).move();
+            if(shots.get(i).outOfScreen()) {
+                shots.removeIndex(i);
+            }
+            for (int j = 0; j < enemies.size; j++) {
+                if(shots.get(i).hitEnemy(enemies.get(j))){
+                    shots.removeIndex(i);
+                    enemies.removeIndex(j);
+                    break;
+                }
+            }
         }
 
         // отрисовка
@@ -157,7 +168,7 @@ public class ScreenGame implements Screen {
     void spawnShot(){
         if(TimeUtils.millis() > timeSpawnLastShot+timeSpawnShotInterval){
             timeSpawnLastShot = TimeUtils.millis();
-            shots.add(new Shot(ship));
+            shots.add(new Shot(ship.x, ship.y));
         }
     }
 }
