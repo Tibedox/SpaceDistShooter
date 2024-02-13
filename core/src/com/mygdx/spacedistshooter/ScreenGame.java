@@ -19,6 +19,7 @@ public class ScreenGame implements Screen {
     SpriteBatch batch;
     OrthographicCamera camera;
     Vector3 touch;
+
     boolean isGyroscopeAvailable;
     boolean isAccelerometerAvailable;
 
@@ -43,8 +44,8 @@ public class ScreenGame implements Screen {
         this.spaceDS = spaceDS;
 
         // проверяем, включены ли датчики гироскопа и акселерометра
-        isGyroscopeAvailable = Gdx.input.isPeripheralAvailable(Input.Peripheral.Gyroscope);
-        isAccelerometerAvailable = Gdx.input.isPeripheralAvailable(Input.Peripheral.Accelerometer);
+        //isGyroscopeAvailable = Gdx.input.isPeripheralAvailable(Input.Peripheral.Gyroscope);
+        //isAccelerometerAvailable = Gdx.input.isPeripheralAvailable(Input.Peripheral.Accelerometer);
 
         batch = spaceDS.batch;
         camera = spaceDS.camera;
@@ -55,14 +56,16 @@ public class ScreenGame implements Screen {
         imgShot = new Texture("shoot_blaster_red.png");
         imgFragmentAtlas = new Texture("ships_fragment_atlas.png");
         for (int i = 0; i < imgShip.length; i++) {
-            imgShip[i] = new TextureRegion(imgShipsAtlas, i*400, 0, 400, 400);
-            if(i>6) {
+            if(i<7) {
+                imgShip[i] = new TextureRegion(imgShipsAtlas, i * 400, 0, 400, 400);
+            } else {
                 imgShip[i] = new TextureRegion(imgShipsAtlas, (13-i) * 400, 0, 400, 400);
             }
         }
         for (int i = 0; i < imgEnemy.length; i++) {
-            imgEnemy[i] = new TextureRegion(imgShipsAtlas, i*400, 1600, 400, 400);
-            if(i>6) {
+            if(i<7) {
+                imgEnemy[i] = new TextureRegion(imgShipsAtlas, i*400, 1600, 400, 400);
+            } else {
                 imgEnemy[i] = new TextureRegion(imgShipsAtlas, (13-i)*400, 1600, 400, 400);
             }
         }
@@ -87,12 +90,12 @@ public class ScreenGame implements Screen {
             camera.unproject(touch);
             ship.touch(touch.x);
         }
-        else if (isAccelerometerAvailable){
+        /*else if (isAccelerometerAvailable){
             ship.vx = -Gdx.input.getAccelerometerX()*10;
         }
         else if (isGyroscopeAvailable) {
             ship.vx = Gdx.input.getGyroscopeY()*10;
-        }
+        }*/
 
         // события игры
         for (Stars s: stars) {
@@ -104,7 +107,6 @@ public class ScreenGame implements Screen {
             enemies.get(i).move();
             if(enemies.get(i).outOfScreen()){
                 enemies.removeIndex(i);
-                //Gdx.app.exit();
             }
         }
         spawnShot();
@@ -112,6 +114,7 @@ public class ScreenGame implements Screen {
             shots.get(i).move();
             if(shots.get(i).outOfScreen()) {
                 shots.removeIndex(i);
+                continue;
             }
             for (int j = 0; j < enemies.size; j++) {
                 if(shots.get(i).hitEnemy(enemies.get(j))){
@@ -170,6 +173,7 @@ public class ScreenGame implements Screen {
         imgStars.dispose();
         imgShipsAtlas.dispose();
         imgShot.dispose();
+        imgFragmentAtlas.dispose();
     }
 
     void spawnEnemy(){

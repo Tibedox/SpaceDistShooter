@@ -14,8 +14,6 @@ public class ScreenMenu implements Screen {
     OrthographicCamera camera;
     Vector3 touch;
 
-    Texture img;
-
     public ScreenMenu(SpaceDistShooter spaceDS) {
         this.spaceDS = spaceDS;
 
@@ -23,7 +21,6 @@ public class ScreenMenu implements Screen {
         camera = spaceDS.camera;
         touch = spaceDS.touch;
 
-        //img = new Texture("badlogic.jpg");
     }
 
     @Override
@@ -68,6 +65,6 @@ public class ScreenMenu implements Screen {
 
     @Override
     public void dispose() {
-        img.dispose();
+
     }
 }
