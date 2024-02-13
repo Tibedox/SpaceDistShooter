@@ -3,8 +3,8 @@ package com.mygdx.spacedistshooter;
 import static com.mygdx.spacedistshooter.SpaceDistShooter.*;
 
 import com.badlogic.gdx.Gdx;
-import com.badlogic.gdx.Input;
 import com.badlogic.gdx.Screen;
+import com.badlogic.gdx.audio.Sound;
 import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
@@ -22,6 +22,9 @@ public class ScreenGame implements Screen {
 
     boolean isGyroscopeAvailable;
     boolean isAccelerometerAvailable;
+
+    Sound sndShot;
+    Sound sndExplosion;
 
     Texture imgStars;
     Texture imgShot;
@@ -50,6 +53,9 @@ public class ScreenGame implements Screen {
         batch = spaceDS.batch;
         camera = spaceDS.camera;
         touch = spaceDS.touch;
+
+        sndShot = Gdx.audio.newSound(Gdx.files.internal("blaster.wav"));
+        sndExplosion = Gdx.audio.newSound(Gdx.files.internal("explosion.wav"));
 
         imgStars = new Texture("stars.png");
         imgShipsAtlas = new Texture("ships_atlas3.png");
@@ -117,16 +123,20 @@ public class ScreenGame implements Screen {
                 continue;
             }
             for (int j = 0; j < enemies.size; j++) {
-                if(shots.get(i).hitEnemy(enemies.get(j))){
+                if(shots.get(i).overlap(enemies.get(j))){
                     spawnFragments(enemies.get(j).x, enemies.get(j).y, enemies.get(j).width, enemies.get(j).height, 1);
                     shots.removeIndex(i);
                     enemies.removeIndex(j);
+                    sndExplosion.play();
                     break;
                 }
             }
         }
-        for(Fragment f: fragments){
-            f.move();
+        for (int i = 0; i < fragments.size; i++) {
+            fragments.get(i).move();
+            if(fragments.get(i).outOfScreen()) {
+                fragments.removeIndex(i);
+            }
         }
 
         // отрисовка
@@ -174,6 +184,8 @@ public class ScreenGame implements Screen {
         imgShipsAtlas.dispose();
         imgShot.dispose();
         imgFragmentAtlas.dispose();
+        sndShot.dispose();
+        sndExplosion.dispose();
     }
 
     void spawnEnemy(){
@@ -187,6 +199,7 @@ public class ScreenGame implements Screen {
         if(TimeUtils.millis() > timeSpawnLastShot+timeSpawnShotInterval){
             timeSpawnLastShot = TimeUtils.millis();
             shots.add(new Shot(ship.x, ship.y));
+            sndShot.play(0.2f);
         }
     }
 

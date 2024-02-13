@@ -15,8 +15,10 @@ public class Fragment extends SpaceObject{
         this.height = MathUtils.random(height/20, height/3);
         this.x = x;
         this.y = y;
-        vx = MathUtils.random(-7f, 7f);
-        vy = MathUtils.random(-7f, 7f);
+        float a = MathUtils.random(0f, 360f);
+        float v = MathUtils.random(1f, 7f);
+        vx = v*MathUtils.sin(a);
+        vy = v*MathUtils.cos(a);
         speedRotation = MathUtils.random(-5f, 5f);
     }
 
