@@ -1,18 +1,19 @@
 package com.mygdx.spacedistshooter;
 
-import static com.mygdx.spacedistshooter.SpaceDistShooter.SCR_HEIGHT;
-import static com.mygdx.spacedistshooter.SpaceDistShooter.SCR_WIDTH;
-
-import com.badlogic.gdx.utils.TimeUtils;
+import static com.mygdx.spacedistshooter.SpaceDistShooter.*;
 
 public class Ship extends SpaceObject{
+    int lifes = 3;
+     boolean isAlive;
 
     public Ship(int nPhases) {
+        type = TYPE_SHIP;
         width = height = 200;
         x = SCR_WIDTH/2;
         y = SCR_HEIGHT/10;
         this.nPhases = nPhases;
         timePhaseInterval = 40;
+        isAlive = true;
     }
 
     @Override

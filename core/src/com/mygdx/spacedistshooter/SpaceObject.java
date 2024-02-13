@@ -3,6 +3,7 @@ package com.mygdx.spacedistshooter;
 import com.badlogic.gdx.utils.TimeUtils;
 
 public class SpaceObject {
+    int type;
     float x, y;
     float vx, vy;
     float width, height;

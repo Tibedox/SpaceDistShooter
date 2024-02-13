@@ -107,15 +107,23 @@ public class ScreenGame implements Screen {
         for (Stars s: stars) {
             s.move();
         }
-        ship.move();
-        spawnEnemy();
+        if(ship.isAlive) {
+            ship.move();
+            spawnEnemy();
+            spawnShot();
+        }
+
         for (int i=0; i<enemies.size; i++){
             enemies.get(i).move();
             if(enemies.get(i).outOfScreen()){
                 enemies.removeIndex(i);
+                if(ship.isAlive) {
+                    killShip();
+                }
+                break;
             }
         }
-        spawnShot();
+
         for (int i=0; i<shots.size; i++){
             shots.get(i).move();
             if(shots.get(i).outOfScreen()) {
@@ -124,7 +132,7 @@ public class ScreenGame implements Screen {
             }
             for (int j = 0; j < enemies.size; j++) {
                 if(shots.get(i).overlap(enemies.get(j))){
-                    spawnFragments(enemies.get(j).x, enemies.get(j).y, enemies.get(j).width, enemies.get(j).height, 1);
+                    spawnFragments(enemies.get(j));
                     shots.removeIndex(i);
                     enemies.removeIndex(j);
                     sndExplosion.play();
@@ -154,7 +162,12 @@ public class ScreenGame implements Screen {
         for (Shot s: shots) {
             batch.draw(imgShot, s.getX(), s.getY(), s.width, s.height);
         }
-        batch.draw(imgShip[ship.phase], ship.getX(), ship.getY(), ship.width, ship.height);
+        if(ship.isAlive) {
+            batch.draw(imgShip[ship.phase], ship.getX(), ship.getY(), ship.width, ship.height);
+        }
+        for (int i = 0; i < ship.lifes; i++) {
+            batch.draw(imgShip[0], SCR_WIDTH-100-100*i, SCR_HEIGHT-100, 80, 80);
+        }
         batch.end();
     }
 
@@ -203,9 +216,16 @@ public class ScreenGame implements Screen {
         }
     }
 
-    void spawnFragments(float x, float y, float width, float height, int type){
+    void spawnFragments(SpaceObject o){
         for (int i = 0; i < nFragments; i++) {
-            fragments.add(new Fragment(x, y, width, height, type));
+            fragments.add(new Fragment(o.x, o.y, o.width, o.height, o.type));
         }
+    }
+
+    void killShip() {
+        spawnFragments(ship);
+        sndExplosion.play();
+        ship.lifes--;
+        ship.isAlive = false;
     }
 }

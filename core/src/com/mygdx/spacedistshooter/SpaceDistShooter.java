@@ -6,7 +6,8 @@ import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.math.Vector3;
 
 public class SpaceDistShooter extends Game {
-	public static final float SCR_WIDTH = 1080, SCR_HEIGHT = 2200;
+	public static final float SCR_WIDTH = 1000, SCR_HEIGHT = 2200;
+	public static final int TYPE_SHIP = 0, TYPE_ENEMY = 1;
 
 	SpriteBatch batch;
 	OrthographicCamera camera;
