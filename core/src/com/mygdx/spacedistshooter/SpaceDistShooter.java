@@ -14,7 +14,7 @@ public class SpaceDistShooter extends Game {
 	SpriteBatch batch;
 	OrthographicCamera camera;
 	Vector3 touch;
-	BitmapFont fontSmall;
+	BitmapFont fontSmall, fontLarge;
 
 	ScreenMenu screenMenu;
 	ScreenGame screenGame;
@@ -26,16 +26,18 @@ public class SpaceDistShooter extends Game {
 		camera.setToOrtho(false, SCR_WIDTH, SCR_HEIGHT);
 		touch = new Vector3();
 		fontSmall = new BitmapFont(Gdx.files.internal("ds_crystal.fnt"));
+		fontLarge = new BitmapFont(Gdx.files.internal("ds_crystal2.fnt"));
 
 		screenMenu = new ScreenMenu(this);
 		screenGame = new ScreenGame(this);
 
-		setScreen(screenGame);
+		setScreen(screenMenu);
 	}
 	
 	@Override
 	public void dispose () {
 		batch.dispose();
 		fontSmall.dispose();
+		fontLarge.dispose();
 	}
 }
