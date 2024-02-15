@@ -5,8 +5,10 @@ import static com.mygdx.spacedistshooter.SpaceDistShooter.*;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Screen;
 import com.badlogic.gdx.audio.Sound;
+import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.badlogic.gdx.graphics.Texture;
+import com.badlogic.gdx.graphics.g2d.BitmapFont;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.badlogic.gdx.math.Vector3;
@@ -19,6 +21,7 @@ public class ScreenGame implements Screen {
     SpriteBatch batch;
     OrthographicCamera camera;
     Vector3 touch;
+    BitmapFont fontSmall;
 
     boolean isGyroscopeAvailable;
     boolean isAccelerometerAvailable;
@@ -43,6 +46,8 @@ public class ScreenGame implements Screen {
     long timeSpawnLastShot, timeSpawnShotInterval = 800;
     int nFragments = 50;
 
+    int kills;
+
     public ScreenGame(SpaceDistShooter spaceDS) {
         this.spaceDS = spaceDS;
 
@@ -53,6 +58,7 @@ public class ScreenGame implements Screen {
         batch = spaceDS.batch;
         camera = spaceDS.camera;
         touch = spaceDS.touch;
+        fontSmall = spaceDS.fontSmall;
 
         sndShot = Gdx.audio.newSound(Gdx.files.internal("blaster.wav"));
         sndExplosion = Gdx.audio.newSound(Gdx.files.internal("explosion.wav"));
@@ -107,10 +113,13 @@ public class ScreenGame implements Screen {
         for (Stars s: stars) {
             s.move();
         }
+
         if(ship.isAlive) {
             ship.move();
             spawnEnemy();
             spawnShot();
+        } else {
+            restart();
         }
 
         for (int i=0; i<enemies.size; i++){
@@ -136,6 +145,7 @@ public class ScreenGame implements Screen {
                     shots.removeIndex(i);
                     enemies.removeIndex(j);
                     sndExplosion.play();
+                    kills++;
                     break;
                 }
             }
@@ -168,6 +178,7 @@ public class ScreenGame implements Screen {
         for (int i = 0; i < ship.lifes; i++) {
             batch.draw(imgShip[0], SCR_WIDTH-100-100*i, SCR_HEIGHT-100, 80, 80);
         }
+        fontSmall.draw(batch, "Kills: "+kills, 20, SCR_HEIGHT-20);
         batch.end();
     }
 
@@ -227,5 +238,12 @@ public class ScreenGame implements Screen {
         sndExplosion.play();
         ship.lifes--;
         ship.isAlive = false;
+    }
+
+    void restart() {
+        if(shots.size == 0 & enemies.size == 0) {
+            fragments.clear();
+            ship.reSpawn();
+        }
     }
 }

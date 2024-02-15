@@ -1,7 +1,9 @@
 package com.mygdx.spacedistshooter;
 
 import com.badlogic.gdx.Game;
+import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.OrthographicCamera;
+import com.badlogic.gdx.graphics.g2d.BitmapFont;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.math.Vector3;
 
@@ -12,6 +14,7 @@ public class SpaceDistShooter extends Game {
 	SpriteBatch batch;
 	OrthographicCamera camera;
 	Vector3 touch;
+	BitmapFont fontSmall;
 
 	ScreenMenu screenMenu;
 	ScreenGame screenGame;
@@ -22,6 +25,7 @@ public class SpaceDistShooter extends Game {
 		camera = new OrthographicCamera();
 		camera.setToOrtho(false, SCR_WIDTH, SCR_HEIGHT);
 		touch = new Vector3();
+		fontSmall = new BitmapFont(Gdx.files.internal("ds_crystal.fnt"));
 
 		screenMenu = new ScreenMenu(this);
 		screenGame = new ScreenGame(this);
@@ -32,5 +36,6 @@ public class SpaceDistShooter extends Game {
 	@Override
 	public void dispose () {
 		batch.dispose();
+		fontSmall.dispose();
 	}
 }

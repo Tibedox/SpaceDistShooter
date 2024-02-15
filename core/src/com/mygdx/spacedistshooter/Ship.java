@@ -37,4 +37,11 @@ public class Ship extends SpaceObject{
     void touch(float touchX){
         vx = (touchX - x) / 20;
     }
+
+    void reSpawn(){
+        x = SCR_WIDTH/2;
+        y = SCR_HEIGHT/10;
+        phase = 0;
+        isAlive = true;
+    }
 }
