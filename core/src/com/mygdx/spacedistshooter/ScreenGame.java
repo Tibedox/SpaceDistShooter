@@ -249,12 +249,16 @@ public class ScreenGame implements Screen {
         if(TimeUtils.millis() > timeSpawnLastShot+timeSpawnShotInterval){
             timeSpawnLastShot = TimeUtils.millis();
             shots.add(new Shot(ship.x, ship.y));
-            sndShot.play(0.2f);
+            if(spaceDS.isSoundOn) {
+                sndShot.play(0.2f);
+            }
         }
     }
 
     void spawnFragments(SpaceObject o){
-        sndExplosion.play();
+        if(spaceDS.isSoundOn) {
+            sndExplosion.play();
+        }
         for (int i = 0; i < nFragments; i++) {
             fragments.add(new Fragment(o.x, o.y, o.width, o.height, o.type));
         }

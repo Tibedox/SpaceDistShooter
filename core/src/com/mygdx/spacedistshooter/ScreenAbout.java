@@ -10,37 +10,40 @@ import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.BitmapFont;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.math.Vector3;
+import com.badlogic.gdx.utils.Align;
 import com.badlogic.gdx.utils.ScreenUtils;
 
-public class ScreenMenu implements Screen {
+public class ScreenAbout implements Screen {
     SpaceDistShooter spaceDS;
 
     SpriteBatch batch;
     OrthographicCamera camera;
     Vector3 touch;
     BitmapFont fontLarge;
+    BitmapFont fontSmall;
 
     Texture imgBackGround;
 
-    SpaceButton btnPlay;
-    SpaceButton btnSettings;
-    SpaceButton btnAbout;
-    SpaceButton btnExit;
+    SpaceButton btnBack;
+    String textAbout=
+            "Это космическая аркада,\n" +
+            "суперигра, в которую\n" +
+            "можно играть,\n" +
+            "или не играть.\n" +
+            "Сделана в IT школе.";
 
-    public ScreenMenu(SpaceDistShooter spaceDS) {
+    public ScreenAbout(SpaceDistShooter spaceDS) {
         this.spaceDS = spaceDS;
 
         batch = spaceDS.batch;
         camera = spaceDS.camera;
         touch = spaceDS.touch;
         fontLarge = spaceDS.fontLarge;
+        fontSmall = spaceDS.fontSmall;
 
-        imgBackGround = new Texture("bg1.jpg");
+        imgBackGround = new Texture("bg3.jpg");
 
-        btnPlay = new SpaceButton("PLAY", 200, 1500, fontLarge);
-        btnSettings = new SpaceButton("SETTINGS", 200, 1350, fontLarge);
-        btnAbout = new SpaceButton("ABOUT", 200, 1200, fontLarge);
-        btnExit = new SpaceButton("EXIT", 200, 1050, fontLarge);
+        btnBack = new SpaceButton("Back to Menu", SCR_HEIGHT/10, fontLarge);
     }
 
     @Override
@@ -55,17 +58,8 @@ public class ScreenMenu implements Screen {
             touch.set(Gdx.input.getX(), Gdx.input.getY(), 0);
             camera.unproject(touch);
 
-            if(btnPlay.hit(touch.x, touch.y)){
-                spaceDS.setScreen(spaceDS.screenGame);
-            }
-            if(btnSettings.hit(touch.x, touch.y)){
-                spaceDS.setScreen(spaceDS.screenSettings);
-            }
-            if(btnAbout.hit(touch.x, touch.y)){
-                spaceDS.setScreen(spaceDS.screenAbout);
-            }
-            if(btnExit.hit(touch.x, touch.y)){
-                Gdx.app.exit();
+            if(btnBack.hit(touch.x, touch.y)){
+                spaceDS.setScreen(spaceDS.screenMenu);
             }
         }
 
@@ -76,10 +70,9 @@ public class ScreenMenu implements Screen {
         batch.setProjectionMatrix(camera.combined);
         batch.begin();
         batch.draw(imgBackGround, 0, 0, SCR_WIDTH, SCR_HEIGHT);
-        btnPlay.font.draw(batch, btnPlay.text, btnPlay.x, btnPlay.y);
-        btnSettings.font.draw(batch, btnSettings.text, btnSettings.x, btnSettings.y);
-        btnAbout.font.draw(batch, btnAbout.text, btnAbout.x, btnAbout.y);
-        btnExit.font.draw(batch, btnExit.text, btnExit.x, btnExit.y);
+        fontLarge.draw(batch, "Об Игре", 0, SCR_HEIGHT/10*9, SCR_WIDTH, Align.center, true);
+        fontSmall.draw(batch, textAbout, 100, SCR_HEIGHT/10*6);
+        btnBack.font.draw(batch, btnBack.text, btnBack.x, btnBack.y);
         batch.end();
     }
 

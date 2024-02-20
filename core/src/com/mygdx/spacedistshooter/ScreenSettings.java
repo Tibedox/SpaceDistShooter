@@ -12,7 +12,7 @@ import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.math.Vector3;
 import com.badlogic.gdx.utils.ScreenUtils;
 
-public class ScreenMenu implements Screen {
+public class ScreenSettings implements Screen {
     SpaceDistShooter spaceDS;
 
     SpriteBatch batch;
@@ -22,12 +22,12 @@ public class ScreenMenu implements Screen {
 
     Texture imgBackGround;
 
-    SpaceButton btnPlay;
-    SpaceButton btnSettings;
-    SpaceButton btnAbout;
-    SpaceButton btnExit;
+    SpaceButton btnName;
+    SpaceButton btnSound;
+    SpaceButton btnClearRecords;
+    SpaceButton btnBack;
 
-    public ScreenMenu(SpaceDistShooter spaceDS) {
+    public ScreenSettings(SpaceDistShooter spaceDS) {
         this.spaceDS = spaceDS;
 
         batch = spaceDS.batch;
@@ -35,12 +35,12 @@ public class ScreenMenu implements Screen {
         touch = spaceDS.touch;
         fontLarge = spaceDS.fontLarge;
 
-        imgBackGround = new Texture("bg1.jpg");
+        imgBackGround = new Texture("bg2.jpg");
 
-        btnPlay = new SpaceButton("PLAY", 200, 1500, fontLarge);
-        btnSettings = new SpaceButton("SETTINGS", 200, 1350, fontLarge);
-        btnAbout = new SpaceButton("ABOUT", 200, 1200, fontLarge);
-        btnExit = new SpaceButton("EXIT", 200, 1050, fontLarge);
+        btnName = new SpaceButton("Name", 50, 1400, fontLarge);
+        btnSound = new SpaceButton("Sound On", 50, 1250, fontLarge);
+        btnClearRecords = new SpaceButton("Clear Records", 50, 1100, fontLarge);
+        btnBack = new SpaceButton("Back to Menu", 50, 950, fontLarge);
     }
 
     @Override
@@ -55,17 +55,22 @@ public class ScreenMenu implements Screen {
             touch.set(Gdx.input.getX(), Gdx.input.getY(), 0);
             camera.unproject(touch);
 
-            if(btnPlay.hit(touch.x, touch.y)){
-                spaceDS.setScreen(spaceDS.screenGame);
+            if(btnName.hit(touch.x, touch.y)){
+                //spaceDS.setScreen(spaceDS.screenGame);
             }
-            if(btnSettings.hit(touch.x, touch.y)){
-                spaceDS.setScreen(spaceDS.screenSettings);
+            if(btnSound.hit(touch.x, touch.y)){
+                spaceDS.isSoundOn = !spaceDS.isSoundOn;
+                if(spaceDS.isSoundOn){
+                    btnSound.setText("Sound On");
+                } else {
+                    btnSound.setText("Sound Off");
+                }
             }
-            if(btnAbout.hit(touch.x, touch.y)){
-                spaceDS.setScreen(spaceDS.screenAbout);
+            if(btnClearRecords.hit(touch.x, touch.y)){
+                //spaceDS.setScreen(spaceDS.screenGame);
             }
-            if(btnExit.hit(touch.x, touch.y)){
-                Gdx.app.exit();
+            if(btnBack.hit(touch.x, touch.y)){
+                spaceDS.setScreen(spaceDS.screenMenu);
             }
         }
 
@@ -76,10 +81,10 @@ public class ScreenMenu implements Screen {
         batch.setProjectionMatrix(camera.combined);
         batch.begin();
         batch.draw(imgBackGround, 0, 0, SCR_WIDTH, SCR_HEIGHT);
-        btnPlay.font.draw(batch, btnPlay.text, btnPlay.x, btnPlay.y);
-        btnSettings.font.draw(batch, btnSettings.text, btnSettings.x, btnSettings.y);
-        btnAbout.font.draw(batch, btnAbout.text, btnAbout.x, btnAbout.y);
-        btnExit.font.draw(batch, btnExit.text, btnExit.x, btnExit.y);
+        btnName.font.draw(batch, btnName.text, btnName.x, btnName.y);
+        btnSound.font.draw(batch, btnSound.text, btnSound.x, btnSound.y);
+        btnClearRecords.font.draw(batch, btnClearRecords.text, btnClearRecords.x, btnClearRecords.y);
+        btnBack.font.draw(batch, btnBack.text, btnBack.x, btnBack.y);
         batch.end();
     }
 

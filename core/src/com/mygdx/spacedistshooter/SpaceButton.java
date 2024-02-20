@@ -9,7 +9,8 @@ public class SpaceButton {
     BitmapFont font;
     String text;
     float x, y;
-    float width, height;
+    private float width, height;
+    private boolean isCentered;
 
     public SpaceButton(String text, float x, float y, BitmapFont font) {
         this.font = font;
@@ -29,6 +30,16 @@ public class SpaceButton {
         height = layout.height;
         this.x = SCR_WIDTH/2-width/2;
         this.y = y;
+        isCentered = true;
+    }
+
+    void setText(String text) {
+        this.text = text;
+        GlyphLayout layout = new GlyphLayout(font, text);
+        width = layout.width;
+        if(isCentered){
+            this.x = SCR_WIDTH/2-width/2;
+        }
     }
 
     boolean hit(float tx, float ty) {

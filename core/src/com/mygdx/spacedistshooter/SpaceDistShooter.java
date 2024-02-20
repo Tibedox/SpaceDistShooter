@@ -18,6 +18,10 @@ public class SpaceDistShooter extends Game {
 
 	ScreenMenu screenMenu;
 	ScreenGame screenGame;
+	ScreenSettings screenSettings;
+	ScreenAbout screenAbout;
+
+	boolean isSoundOn = true;
 	
 	@Override
 	public void create () {
@@ -30,6 +34,8 @@ public class SpaceDistShooter extends Game {
 
 		screenMenu = new ScreenMenu(this);
 		screenGame = new ScreenGame(this);
+		screenSettings = new ScreenSettings(this);
+		screenAbout = new ScreenAbout(this);
 
 		setScreen(screenMenu);
 	}
