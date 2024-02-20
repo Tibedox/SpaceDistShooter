@@ -3,7 +3,7 @@ package com.mygdx.spacedistshooter;
 import static com.mygdx.spacedistshooter.SpaceDistShooter.*;
 
 public class Ship extends SpaceObject{
-    int lifes = 3;
+    int lives;
      boolean isAlive;
 
     public Ship(int nPhases) {
@@ -43,5 +43,6 @@ public class Ship extends SpaceObject{
         y = SCR_HEIGHT/10;
         phase = 0;
         isAlive = true;
+        vx = 0;
     }
 }

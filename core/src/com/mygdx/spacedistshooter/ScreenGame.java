@@ -5,13 +5,13 @@ import static com.mygdx.spacedistshooter.SpaceDistShooter.*;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Screen;
 import com.badlogic.gdx.audio.Sound;
-import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.BitmapFont;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.badlogic.gdx.math.Vector3;
+import com.badlogic.gdx.utils.Align;
 import com.badlogic.gdx.utils.Array;
 import com.badlogic.gdx.utils.TimeUtils;
 
@@ -22,6 +22,7 @@ public class ScreenGame implements Screen {
     OrthographicCamera camera;
     Vector3 touch;
     BitmapFont fontSmall;
+    BitmapFont fontLarge;
 
     boolean isGyroscopeAvailable;
     boolean isAccelerometerAvailable;
@@ -40,13 +41,17 @@ public class ScreenGame implements Screen {
     Stars[] stars = new Stars[2];
     Ship ship;
     Array<Enemy> enemies = new Array<>();
-    Array<Shot> shots = new Array<>();
-    Array<Fragment> fragments = new Array<>();
     long timeSpawnLastEnemy, timeSpawnEnemyInterval = 1500;
+    Array<Shot> shots = new Array<>();
     long timeSpawnLastShot, timeSpawnShotInterval = 800;
-    int nFragments = 50;
+    Array<Fragment> fragments = new Array<>();
 
+    SpaceButton btnBack;
+
+    int nFragments = 50;
+    int nLives = 1;
     int kills;
+    boolean isGameOver;
 
     public ScreenGame(SpaceDistShooter spaceDS) {
         this.spaceDS = spaceDS;
@@ -59,6 +64,7 @@ public class ScreenGame implements Screen {
         camera = spaceDS.camera;
         touch = spaceDS.touch;
         fontSmall = spaceDS.fontSmall;
+        fontLarge = spaceDS.fontLarge;
 
         sndShot = Gdx.audio.newSound(Gdx.files.internal("blaster.wav"));
         sndExplosion = Gdx.audio.newSound(Gdx.files.internal("explosion.wav"));
@@ -84,6 +90,8 @@ public class ScreenGame implements Screen {
         imgFragment[0] = new TextureRegion(imgFragmentAtlas, 0, 0, 100, 100);
         imgFragment[1] = new TextureRegion(imgFragmentAtlas, 500, 0, 100, 100);
 
+        btnBack = new SpaceButton("Back to Menu", SCR_HEIGHT/10, fontSmall);
+
         stars[0] = new Stars(0);
         stars[1] = new Stars(SCR_HEIGHT);
         ship = new Ship(imgShip.length);
@@ -97,6 +105,7 @@ public class ScreenGame implements Screen {
             //
         }
         touch.set(0, 0, 0);
+        gameStart();
     }
 
     @Override
@@ -106,6 +115,10 @@ public class ScreenGame implements Screen {
             touch.set(Gdx.input.getX(), Gdx.input.getY(), 0);
             camera.unproject(touch);
             ship.touch(touch.x);
+
+            if(isGameOver && btnBack.hit(touch.x, touch.y)){
+                spaceDS.setScreen(spaceDS.screenMenu);
+            }
         }
         /*else if (isAccelerometerAvailable){
             ship.vx = -Gdx.input.getAccelerometerX()*10;
@@ -123,8 +136,8 @@ public class ScreenGame implements Screen {
             ship.move();
             spawnEnemy();
             spawnShot();
-        } else {
-            restart();
+        } else if(!isGameOver) {
+            restartRound();
         }
 
         for (int i=0; i<enemies.size; i++){
@@ -135,6 +148,11 @@ public class ScreenGame implements Screen {
                     killShip();
                 }
                 break;
+            }
+            if(ship.isAlive && enemies.get(i).overlap(ship)){
+                spawnFragments(enemies.get(i));
+                enemies.removeIndex(i);
+                killShip();
             }
         }
 
@@ -149,7 +167,6 @@ public class ScreenGame implements Screen {
                     spawnFragments(enemies.get(j));
                     shots.removeIndex(i);
                     enemies.removeIndex(j);
-                    sndExplosion.play();
                     kills++;
                     break;
                 }
@@ -180,10 +197,14 @@ public class ScreenGame implements Screen {
         if(ship.isAlive) {
             batch.draw(imgShip[ship.phase], ship.getX(), ship.getY(), ship.width, ship.height);
         }
-        for (int i = 0; i < ship.lifes; i++) {
+        for (int i = 0; i < ship.lives; i++) {
             batch.draw(imgShip[0], SCR_WIDTH-100-100*i, SCR_HEIGHT-100, 80, 80);
         }
         fontSmall.draw(batch, "Kills: "+kills, 20, SCR_HEIGHT-20);
+        if(isGameOver) {
+            fontLarge.draw(batch, "GAME OVER", 0, SCR_HEIGHT / 4 * 3, SCR_WIDTH, Align.center, true);
+            btnBack.font.draw(batch, btnBack.text, btnBack.x, btnBack.y);
+        }
         batch.end();
     }
 
@@ -233,6 +254,7 @@ public class ScreenGame implements Screen {
     }
 
     void spawnFragments(SpaceObject o){
+        sndExplosion.play();
         for (int i = 0; i < nFragments; i++) {
             fragments.add(new Fragment(o.x, o.y, o.width, o.height, o.type));
         }
@@ -240,15 +262,26 @@ public class ScreenGame implements Screen {
 
     void killShip() {
         spawnFragments(ship);
-        sndExplosion.play();
-        ship.lifes--;
         ship.isAlive = false;
+        if(--ship.lives == 0) {
+            isGameOver = true;
+        }
     }
 
-    void restart() {
+    void restartRound() {
         if(shots.size == 0 & enemies.size == 0) {
             fragments.clear();
             ship.reSpawn();
         }
+    }
+
+    void gameStart() {
+        ship.reSpawn();
+        ship.lives = nLives;
+        isGameOver = false;
+        enemies.clear();
+        shots.clear();
+        fragments.clear();
+        kills = 0;
     }
 }
