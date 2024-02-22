@@ -22,6 +22,7 @@ public class SpaceDistShooter extends Game {
 	ScreenAbout screenAbout;
 
 	boolean isSoundOn = true;
+	String playerName = "Player";
 	
 	@Override
 	public void create () {

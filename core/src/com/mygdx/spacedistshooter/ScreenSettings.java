@@ -4,6 +4,7 @@ import static com.mygdx.spacedistshooter.SpaceDistShooter.SCR_HEIGHT;
 import static com.mygdx.spacedistshooter.SpaceDistShooter.SCR_WIDTH;
 
 import com.badlogic.gdx.Gdx;
+import com.badlogic.gdx.Input;
 import com.badlogic.gdx.Preferences;
 import com.badlogic.gdx.Screen;
 import com.badlogic.gdx.graphics.OrthographicCamera;
@@ -20,6 +21,7 @@ public class ScreenSettings implements Screen {
     OrthographicCamera camera;
     Vector3 touch;
     BitmapFont fontLarge;
+    BitmapFont fontSmall;
 
     Texture imgBackGround;
 
@@ -28,6 +30,9 @@ public class ScreenSettings implements Screen {
     SpaceButton btnClearRecords;
     SpaceButton btnBack;
 
+    InputKeyboard keyboard;
+    boolean isEnterName;
+
     public ScreenSettings(SpaceDistShooter spaceDS) {
         this.spaceDS = spaceDS;
 
@@ -35,6 +40,7 @@ public class ScreenSettings implements Screen {
         camera = spaceDS.camera;
         touch = spaceDS.touch;
         fontLarge = spaceDS.fontLarge;
+        fontSmall = spaceDS.fontSmall;
 
         imgBackGround = new Texture("bg2.jpg");
 
@@ -44,6 +50,8 @@ public class ScreenSettings implements Screen {
         btnSound = new SpaceButton(spaceDS.isSoundOn?"Sound On":"Sound Off", 30, 1250, fontLarge);
         btnClearRecords = new SpaceButton("Clear Records", 30, 1100, fontLarge);
         btnBack = new SpaceButton("Back", 30, 950, fontLarge);
+
+        keyboard = new InputKeyboard(fontSmall, SCR_WIDTH, SCR_HEIGHT/2, 10);
     }
 
     @Override
@@ -58,23 +66,30 @@ public class ScreenSettings implements Screen {
             touch.set(Gdx.input.getX(), Gdx.input.getY(), 0);
             camera.unproject(touch);
 
-            if(btnName.hit(touch.x, touch.y)){
-                //spaceDS.setScreen(spaceDS.screenGame);
-            }
-            if(btnSound.hit(touch.x, touch.y)){
-                spaceDS.isSoundOn = !spaceDS.isSoundOn;
-                if(spaceDS.isSoundOn){
-                    btnSound.setText("Sound On");
-                } else {
-                    btnSound.setText("Sound Off");
+            if(isEnterName){
+                if (keyboard.endOfEdit(touch.x, touch.y)) {
+                    spaceDS.playerName = keyboard.getText();
+                    isEnterName = false;
                 }
-            }
-            if(btnClearRecords.hit(touch.x, touch.y)){
-                spaceDS.screenGame.clearRecords();
-                btnClearRecords.setText("Records cleared");
-            }
-            if(btnBack.hit(touch.x, touch.y)){
-                spaceDS.setScreen(spaceDS.screenMenu);
+            } else {
+                if (btnName.hit(touch.x, touch.y)) {
+                    isEnterName = true;
+                }
+                if (btnSound.hit(touch.x, touch.y)) {
+                    spaceDS.isSoundOn = !spaceDS.isSoundOn;
+                    if (spaceDS.isSoundOn) {
+                        btnSound.setText("Sound On");
+                    } else {
+                        btnSound.setText("Sound Off");
+                    }
+                }
+                if (btnClearRecords.hit(touch.x, touch.y)) {
+                    spaceDS.screenGame.clearRecords();
+                    btnClearRecords.setText("Records cleared");
+                }
+                if (btnBack.hit(touch.x, touch.y)) {
+                    spaceDS.setScreen(spaceDS.screenMenu);
+                }
             }
         }
 
@@ -89,6 +104,9 @@ public class ScreenSettings implements Screen {
         btnSound.font.draw(batch, btnSound.text, btnSound.x, btnSound.y);
         btnClearRecords.font.draw(batch, btnClearRecords.text, btnClearRecords.x, btnClearRecords.y);
         btnBack.font.draw(batch, btnBack.text, btnBack.x, btnBack.y);
+        if(isEnterName) {
+            keyboard.draw(batch);
+        }
         batch.end();
     }
 
@@ -116,6 +134,7 @@ public class ScreenSettings implements Screen {
     @Override
     public void dispose() {
         imgBackGround.dispose();
+        keyboard.dispose();
     }
 
     private void saveSettings() {

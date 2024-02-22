@@ -302,7 +302,7 @@ public class ScreenGame implements Screen {
 
     void gameOver() {
         isGameOver = true;
-        players[players.length-1].name = "Player";
+        players[players.length-1].name = spaceDS.playerName;
         players[players.length-1].score = kills;
         sortRecords();
         saveRecords();
