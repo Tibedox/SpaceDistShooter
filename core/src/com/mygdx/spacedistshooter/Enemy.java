@@ -24,7 +24,7 @@ public class Enemy extends SpaceObject{
         changePhase();
     }
 
-    boolean outOfScreen(){
+    public boolean outOfScreen(){
         return y < -height / 2;
     }
 }

@@ -40,10 +40,10 @@ public class ScreenSettings implements Screen {
 
         loadSettings();
 
-        btnName = new SpaceButton("Name", 50, 1400, fontLarge);
-        btnSound = new SpaceButton(spaceDS.isSoundOn?"Sound On":"Sound Off", 50, 1250, fontLarge);
-        btnClearRecords = new SpaceButton("Clear Records", 50, 1100, fontLarge);
-        btnBack = new SpaceButton("Back", 50, 950, fontLarge);
+        btnName = new SpaceButton("Name", 30, 1400, fontLarge);
+        btnSound = new SpaceButton(spaceDS.isSoundOn?"Sound On":"Sound Off", 30, 1250, fontLarge);
+        btnClearRecords = new SpaceButton("Clear Records", 30, 1100, fontLarge);
+        btnBack = new SpaceButton("Back", 30, 950, fontLarge);
     }
 
     @Override
@@ -70,7 +70,8 @@ public class ScreenSettings implements Screen {
                 }
             }
             if(btnClearRecords.hit(touch.x, touch.y)){
-                //spaceDS.setScreen(spaceDS.screenGame);
+                spaceDS.screenGame.clearRecords();
+                btnClearRecords.setText("Records cleared");
             }
             if(btnBack.hit(touch.x, touch.y)){
                 spaceDS.setScreen(spaceDS.screenMenu);
@@ -108,6 +109,7 @@ public class ScreenSettings implements Screen {
 
     @Override
     public void hide() {
+        btnClearRecords.setText("Clear Records");
         saveSettings();
     }
 

@@ -3,6 +3,7 @@ package com.mygdx.spacedistshooter;
 import static com.mygdx.spacedistshooter.SpaceDistShooter.*;
 
 import com.badlogic.gdx.Gdx;
+import com.badlogic.gdx.Preferences;
 import com.badlogic.gdx.Screen;
 import com.badlogic.gdx.audio.Sound;
 import com.badlogic.gdx.graphics.OrthographicCamera;
@@ -45,6 +46,7 @@ public class ScreenGame implements Screen {
     Array<Shot> shots = new Array<>();
     long timeSpawnLastShot, timeSpawnShotInterval = 800;
     Array<Fragment> fragments = new Array<>();
+    Player[] players = new Player[11];
 
     SpaceButton btnBack;
 
@@ -95,6 +97,11 @@ public class ScreenGame implements Screen {
         stars[0] = new Stars(0);
         stars[1] = new Stars(SCR_HEIGHT);
         ship = new Ship(imgShip.length);
+
+        for (int i = 0; i < players.length; i++) {
+            players[i] = new Player("Noname", 0);
+        }
+        loadRecords();
     }
 
     @Override
@@ -203,6 +210,10 @@ public class ScreenGame implements Screen {
         fontSmall.draw(batch, "Kills: "+kills, 20, SCR_HEIGHT-20);
         if(isGameOver) {
             fontLarge.draw(batch, "GAME OVER", 0, SCR_HEIGHT / 4 * 3, SCR_WIDTH, Align.center, true);
+            for (int i = 0; i < players.length-1; i++) {
+                fontSmall.draw(batch, i+1+" "+players[i].name, 200, 1400-i*100);
+                fontSmall.draw(batch, "............."+players[i].score, 200, 1400-i*100,  SCR_WIDTH-200*2, Align.right, true);
+            }
             btnBack.font.draw(batch, btnBack.text, btnBack.x, btnBack.y);
         }
         batch.end();
@@ -268,7 +279,7 @@ public class ScreenGame implements Screen {
         spawnFragments(ship);
         ship.isAlive = false;
         if(--ship.lives == 0) {
-            isGameOver = true;
+            gameOver();
         }
     }
 
@@ -287,5 +298,52 @@ public class ScreenGame implements Screen {
         shots.clear();
         fragments.clear();
         kills = 0;
+    }
+
+    void gameOver() {
+        isGameOver = true;
+        players[players.length-1].name = "Player";
+        players[players.length-1].score = kills;
+        sortRecords();
+        saveRecords();
+    }
+
+    void sortRecords() {
+        boolean flag = true;
+        while (flag) {
+            flag = false;
+            for (int i = 0; i < players.length - 1; i++) {
+                if(players[i].score<players[i+1].score){
+                    Player p = players[i];
+                    players[i] = players[i+1];
+                    players[i+1] = p;
+                    flag = true;
+                }
+            }
+        }
+    }
+
+    void saveRecords() {
+        Preferences preferences = Gdx.app.getPreferences("SpaceDistShooterRecords");
+        for (int i = 0; i < players.length; i++) {
+            preferences.putString("name"+i, players[i].name);
+            preferences.putInteger("score"+i, players[i].score);
+        }
+        preferences.flush();
+    }
+
+    void loadRecords() {
+        Preferences prefs = Gdx.app.getPreferences("SpaceDistShooterRecords");
+        for (int i = 0; i < players.length; i++) {
+            if(prefs.contains("name"+i)) players[i].name = prefs.getString("name" + i);
+            if(prefs.contains("score"+i)) players[i].score = prefs.getInteger("score" + i);
+        }
+    }
+
+    void clearRecords() {
+        for (int i = 0; i < players.length; i++) {
+            players[i].name = "Noname";
+            players[i].score = 0;
+        }
     }
 }
