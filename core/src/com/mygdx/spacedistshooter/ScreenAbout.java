@@ -43,7 +43,7 @@ public class ScreenAbout implements Screen {
 
         imgBackGround = new Texture("bg3.jpg");
 
-        btnBack = new SpaceButton("Back to Menu", SCR_HEIGHT/10, fontLarge);
+        btnBack = new SpaceButton("Back", SCR_HEIGHT/10, fontLarge);
     }
 
     @Override

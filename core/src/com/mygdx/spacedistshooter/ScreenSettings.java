@@ -4,6 +4,7 @@ import static com.mygdx.spacedistshooter.SpaceDistShooter.SCR_HEIGHT;
 import static com.mygdx.spacedistshooter.SpaceDistShooter.SCR_WIDTH;
 
 import com.badlogic.gdx.Gdx;
+import com.badlogic.gdx.Preferences;
 import com.badlogic.gdx.Screen;
 import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.badlogic.gdx.graphics.Texture;
@@ -37,10 +38,12 @@ public class ScreenSettings implements Screen {
 
         imgBackGround = new Texture("bg2.jpg");
 
+        loadSettings();
+
         btnName = new SpaceButton("Name", 50, 1400, fontLarge);
-        btnSound = new SpaceButton("Sound On", 50, 1250, fontLarge);
+        btnSound = new SpaceButton(spaceDS.isSoundOn?"Sound On":"Sound Off", 50, 1250, fontLarge);
         btnClearRecords = new SpaceButton("Clear Records", 50, 1100, fontLarge);
-        btnBack = new SpaceButton("Back to Menu", 50, 950, fontLarge);
+        btnBack = new SpaceButton("Back", 50, 950, fontLarge);
     }
 
     @Override
@@ -105,11 +108,24 @@ public class ScreenSettings implements Screen {
 
     @Override
     public void hide() {
-
+        saveSettings();
     }
 
     @Override
     public void dispose() {
         imgBackGround.dispose();
+    }
+
+    private void saveSettings() {
+        Preferences preferences = Gdx.app.getPreferences("SpaceDistShooterSettings");
+        preferences.putBoolean("sound", spaceDS.isSoundOn);
+        preferences.flush();
+    }
+
+    private void loadSettings() {
+        Preferences preferences = Gdx.app.getPreferences("SpaceDistShooterSettings");
+        if(preferences.contains("sound")){
+            spaceDS.isSoundOn = preferences.getBoolean("sound");
+        }
     }
 }
