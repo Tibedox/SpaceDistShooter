@@ -9,6 +9,7 @@ import com.badlogic.gdx.audio.Sound;
 import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.BitmapFont;
+import com.badlogic.gdx.graphics.g2d.GlyphLayout;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.badlogic.gdx.math.Vector3;
@@ -212,7 +213,8 @@ public class ScreenGame implements Screen {
             fontLarge.draw(batch, "GAME OVER", 0, SCR_HEIGHT / 4 * 3, SCR_WIDTH, Align.center, true);
             for (int i = 0; i < players.length-1; i++) {
                 fontSmall.draw(batch, i+1+" "+players[i].name, 200, 1400-i*100);
-                fontSmall.draw(batch, "............."+players[i].score, 200, 1400-i*100,  SCR_WIDTH-200*2, Align.right, true);
+                String points = amountPoints(fontSmall, i+1+" "+players[i].name, ""+players[i].score, SCR_WIDTH-200*2);
+                fontSmall.draw(batch, points+players[i].score, 200, 1400-i*100,  SCR_WIDTH-200*2, Align.right, true);
             }
             btnBack.font.draw(batch, btnBack.text, btnBack.x, btnBack.y);
         }
@@ -275,7 +277,7 @@ public class ScreenGame implements Screen {
         }
     }
 
-    void killShip() {
+    private void killShip() {
         spawnFragments(ship);
         ship.isAlive = false;
         if(--ship.lives == 0) {
@@ -283,14 +285,14 @@ public class ScreenGame implements Screen {
         }
     }
 
-    void restartRound() {
+    private void restartRound() {
         if(shots.size == 0 & enemies.size == 0) {
             fragments.clear();
             ship.reSpawn();
         }
     }
 
-    void gameStart() {
+    private void gameStart() {
         ship.reSpawn();
         ship.lives = nLives;
         isGameOver = false;
@@ -300,7 +302,7 @@ public class ScreenGame implements Screen {
         kills = 0;
     }
 
-    void gameOver() {
+    private void gameOver() {
         isGameOver = true;
         players[players.length-1].name = spaceDS.playerName;
         players[players.length-1].score = kills;
@@ -308,7 +310,7 @@ public class ScreenGame implements Screen {
         saveRecords();
     }
 
-    void sortRecords() {
+    private void sortRecords() {
         boolean flag = true;
         while (flag) {
             flag = false;
@@ -323,7 +325,7 @@ public class ScreenGame implements Screen {
         }
     }
 
-    void saveRecords() {
+    private void saveRecords() {
         Preferences preferences = Gdx.app.getPreferences("SpaceDistShooterRecords");
         for (int i = 0; i < players.length; i++) {
             preferences.putString("name"+i, players[i].name);
@@ -332,7 +334,7 @@ public class ScreenGame implements Screen {
         preferences.flush();
     }
 
-    void loadRecords() {
+    private void loadRecords() {
         Preferences prefs = Gdx.app.getPreferences("SpaceDistShooterRecords");
         for (int i = 0; i < players.length; i++) {
             if(prefs.contains("name"+i)) players[i].name = prefs.getString("name" + i);
@@ -340,10 +342,23 @@ public class ScreenGame implements Screen {
         }
     }
 
-    void clearRecords() {
+    public void clearRecords() {
         for (int i = 0; i < players.length; i++) {
             players[i].name = "Noname";
             players[i].score = 0;
         }
+    }
+
+    private String amountPoints(BitmapFont font, String textLeft, String textRight, float widthLayout) {
+        GlyphLayout text1 = new GlyphLayout(font, textLeft);
+        GlyphLayout text2 = new GlyphLayout(font, textRight);
+        float widthOfAllPoints = widthLayout - text1.width - text2.width;
+        GlyphLayout widthOnePoint = new GlyphLayout(font, ".");
+        int n = (int) (widthOfAllPoints/widthOnePoint.width)/2;
+        String points = "";
+        for (int i = 0; i < n; i++) {
+            points += ".";
+        }
+        return points;
     }
 }

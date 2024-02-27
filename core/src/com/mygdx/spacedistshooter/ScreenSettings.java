@@ -46,7 +46,7 @@ public class ScreenSettings implements Screen {
 
         loadSettings();
 
-        btnName = new SpaceButton("Name", 30, 1400, fontLarge);
+        btnName = new SpaceButton("Name: "+spaceDS.playerName, 30, 1400, fontLarge);
         btnSound = new SpaceButton(spaceDS.isSoundOn?"Sound On":"Sound Off", 30, 1250, fontLarge);
         btnClearRecords = new SpaceButton("Clear Records", 30, 1100, fontLarge);
         btnBack = new SpaceButton("Back", 30, 950, fontLarge);
@@ -69,6 +69,7 @@ public class ScreenSettings implements Screen {
             if(isEnterName){
                 if (keyboard.endOfEdit(touch.x, touch.y)) {
                     spaceDS.playerName = keyboard.getText();
+                    btnName.setText("Name: "+spaceDS.playerName);
                     isEnterName = false;
                 }
             } else {
@@ -140,6 +141,7 @@ public class ScreenSettings implements Screen {
     private void saveSettings() {
         Preferences preferences = Gdx.app.getPreferences("SpaceDistShooterSettings");
         preferences.putBoolean("sound", spaceDS.isSoundOn);
+        preferences.putString("name", spaceDS.playerName);
         preferences.flush();
     }
 
@@ -147,6 +149,9 @@ public class ScreenSettings implements Screen {
         Preferences preferences = Gdx.app.getPreferences("SpaceDistShooterSettings");
         if(preferences.contains("sound")){
             spaceDS.isSoundOn = preferences.getBoolean("sound");
+        }
+        if(preferences.contains("name")){
+            spaceDS.playerName = preferences.getString("name");
         }
     }
 }
