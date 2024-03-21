@@ -17,6 +17,15 @@ import com.badlogic.gdx.utils.Align;
 import com.badlogic.gdx.utils.Array;
 import com.badlogic.gdx.utils.TimeUtils;
 
+import java.util.ArrayList;
+import java.util.List;
+
+import retrofit2.Call;
+import retrofit2.Callback;
+import retrofit2.Response;
+import retrofit2.Retrofit;
+import retrofit2.converter.gson.GsonConverterFactory;
+
 public class ScreenGame implements Screen {
     SpaceDistShooter spaceDS;
 
@@ -48,8 +57,11 @@ public class ScreenGame implements Screen {
     long timeSpawnLastShot, timeSpawnShotInterval = 800;
     Array<Fragment> fragments = new Array<>();
     Player[] players = new Player[11];
+    List<DataFromBase> db = new ArrayList<>();
 
     SpaceButton btnBack;
+    SpaceButton btnSwitchRecords;
+    boolean isShowGlobalRecords;
 
     int nFragments = 50;
     int nLives = 1;
@@ -93,7 +105,8 @@ public class ScreenGame implements Screen {
         imgFragment[0] = new TextureRegion(imgFragmentAtlas, 0, 0, 100, 100);
         imgFragment[1] = new TextureRegion(imgFragmentAtlas, 500, 0, 100, 100);
 
-        btnBack = new SpaceButton("Back to Menu", SCR_HEIGHT/10, fontSmall);
+        btnSwitchRecords = new SpaceButton("Global/Local records", SCR_HEIGHT/10, fontSmall);
+        btnBack = new SpaceButton("Back to Menu", SCR_HEIGHT/10-100, fontSmall);
 
         stars[0] = new Stars(0);
         stars[1] = new Stars(SCR_HEIGHT);
@@ -123,9 +136,15 @@ public class ScreenGame implements Screen {
             touch.set(Gdx.input.getX(), Gdx.input.getY(), 0);
             camera.unproject(touch);
             ship.touch(touch.x);
-
+        }
+        if (Gdx.input.justTouched()) {
+            touch.set(Gdx.input.getX(), Gdx.input.getY(), 0);
+            camera.unproject(touch);
             if(isGameOver && btnBack.hit(touch.x, touch.y)){
                 spaceDS.setScreen(spaceDS.screenMenu);
+            }
+            if(isGameOver && btnSwitchRecords.hit(touch.x, touch.y)){
+                isShowGlobalRecords = ! isShowGlobalRecords;
             }
         }
         /*else if (isAccelerometerAvailable){
@@ -211,11 +230,23 @@ public class ScreenGame implements Screen {
         fontSmall.draw(batch, "Kills: "+kills, 20, SCR_HEIGHT-20);
         if(isGameOver) {
             fontLarge.draw(batch, "GAME OVER", 0, SCR_HEIGHT / 4 * 3, SCR_WIDTH, Align.center, true);
-            for (int i = 0; i < players.length-1; i++) {
-                fontSmall.draw(batch, i+1+" "+players[i].name, 200, 1400-i*100);
-                String points = amountPoints(fontSmall, i+1+" "+players[i].name, ""+players[i].score, SCR_WIDTH-200*2);
-                fontSmall.draw(batch, points+players[i].score, 200, 1400-i*100,  SCR_WIDTH-200*2, Align.right, true);
+
+            if(isShowGlobalRecords){
+                fontSmall.draw(batch, "Global Records", 0, SCR_HEIGHT / 4 * 3-200, SCR_WIDTH, Align.center, true);
+                for (int i = 0; i < players.length - 1; i++) {
+                    fontSmall.draw(batch, i + 1 + " " + db.get(i).name, 200, 1300 - i * 100);
+                    String points = amountPoints(fontSmall, i + 1 + " " + db.get(i).name, "" + db.get(i).score, SCR_WIDTH - 200 * 2);
+                    fontSmall.draw(batch, points + db.get(i).score, 200, 1300 - i * 100, SCR_WIDTH - 200 * 2, Align.right, true);
+                }
+            } else {
+                fontSmall.draw(batch, "Local Records", 0, SCR_HEIGHT / 4 * 3-200, SCR_WIDTH, Align.center, true);
+                for (int i = 0; i < players.length - 1; i++) {
+                    fontSmall.draw(batch, i + 1 + " " + players[i].name, 200, 1300 - i * 100);
+                    String points = amountPoints(fontSmall, i + 1 + " " + players[i].name, "" + players[i].score, SCR_WIDTH - 200 * 2);
+                    fontSmall.draw(batch, points + players[i].score, 200, 1300 - i * 100, SCR_WIDTH - 200 * 2, Align.right, true);
+                }
             }
+            btnSwitchRecords.font.draw(batch, btnSwitchRecords.text, btnSwitchRecords.x, btnSwitchRecords.y);
             btnBack.font.draw(batch, btnBack.text, btnBack.x, btnBack.y);
         }
         batch.end();
@@ -306,11 +337,12 @@ public class ScreenGame implements Screen {
         isGameOver = true;
         players[players.length-1].name = spaceDS.playerName;
         players[players.length-1].score = kills;
-        sortRecords();
+        sortRecords(players);
         saveRecords();
+        sendRecordToDataBase();
     }
 
-    private void sortRecords() {
+    private void sortRecords(Player[] players) {
         boolean flag = true;
         while (flag) {
             flag = false;
@@ -319,6 +351,21 @@ public class ScreenGame implements Screen {
                     Player p = players[i];
                     players[i] = players[i+1];
                     players[i+1] = p;
+                    flag = true;
+                }
+            }
+        }
+    }
+
+    private void sortRecords(List<DataFromBase> players) {
+        boolean flag = true;
+        while (flag) {
+            flag = false;
+            for (int i = 0; i < players.size() - 1; i++) {
+                if(players.get(i).score<players.get(i+1).score){
+                    DataFromBase p = players.get(i);
+                    players.set(i, players.get(i+1));
+                    players.set(i+1, p);
                     flag = true;
                 }
             }
@@ -360,5 +407,25 @@ public class ScreenGame implements Screen {
             points += ".";
         }
         return points;
+    }
+
+    private void sendRecordToDataBase() {
+        Retrofit retrofit = new Retrofit.Builder()
+                .baseUrl("https://dist.sch120.ru")
+                .addConverterFactory(GsonConverterFactory.create())
+                .build();
+        MyApi myApi = retrofit.create(MyApi.class);
+
+        myApi.send(spaceDS.playerName, kills).enqueue(new Callback<List<DataFromBase>>() {
+            @Override
+            public void onResponse(Call<List<DataFromBase>> call, Response<List<DataFromBase>> response) {
+                db = response.body();
+                sortRecords(db);
+            }
+
+            @Override
+            public void onFailure(Call<List<DataFromBase>> call, Throwable t) {
+            }
+        });
     }
 }
